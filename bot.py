@@ -6,6 +6,8 @@ from telegram.ext import Application, CommandHandler
 from database import init_db
 from handlers.start import start
 from handlers.scan import scan
+from handlers.batch import batch
+from handlers.report import report
 
 load_dotenv()
 
@@ -22,8 +24,11 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("scan", scan))
+    app.add_handler(CommandHandler("batch", batch))
+    app.add_handler(CommandHandler("report", report))
 
-    print("🛡️ SIMON BAN CHECKER is running...")
+    print("🛡️ SIMON BAN CHECKER")
+    print("🚀 Bot is running...")
 
     app.run_polling()
 
