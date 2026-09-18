@@ -1,6 +1,8 @@
 import os
+import threading
 
 from dotenv import load_dotenv
+from flask import Flask
 from telegram.ext import Application, CommandHandler
 
 from database import init_db
@@ -12,6 +14,26 @@ from handlers.report import report
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+PORT = int(os.getenv("PORT", 10000))
+
+app_web = Flask(__name__)
+
+
+@app_web.route("/")
+def home():
+    return "SIMON BAN CHECKER is online ✅", 200
+
+
+@app_web.route("/health")
+def health():
+    return "OK", 200
+
+
+def run_web():
+    app_web.run(
+        host="0.0.0.0",
+        port=PORT
+    )
 
 
 def main():
@@ -20,17 +42,23 @@ def main():
 
     init_db()
 
-    app = Application.builder().token(BOT_TOKEN).build()
+    threading.Thread(
+        target=run_web,
+        daemon=True
+    ).start()
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("scan", scan))
-    app.add_handler(CommandHandler("batch", batch))
-    app.add_handler(CommandHandler("report", report))
+    bot = Application.builder().token(BOT_TOKEN).build()
+
+    bot.add_handler(CommandHandler("start", start))
+    bot.add_handler(CommandHandler("scan", scan))
+    bot.add_handler(CommandHandler("batch", batch))
+    bot.add_handler(CommandHandler("report", report))
 
     print("🛡️ SIMON BAN CHECKER")
-    print("🚀 Bot is running...")
+    print(f"🌐 Web server running on port {PORT}")
+    print("🚀 Telegram bot is running...")
 
-    app.run_polling()
+    bot.run_polling()
 
 
 if __name__ == "__main__":
